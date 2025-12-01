@@ -1,0 +1,145 @@
+class Node {
+    int valor;        // valor armazenado no no
+    Node esquerda;    // ponteiro para o filho da esquerda
+    Node direita;     // ponteiro para o filho da direita
+
+    public Node(int v) {
+        this.valor = v;
+        this.esquerda = null;
+        this.direita = null;
+    }
+}
+
+class BST {
+
+    Node raiz; // raiz da arvore
+
+    public BST() {
+        raiz = null;
+    }
+
+    public void inserir(int v) {
+        raiz = inserirRec(raiz, v);
+    }
+
+    private Node inserirRec(Node atual, int v) {
+
+        // Caso base: achou uma posicao vazia
+        if (atual == null) {
+            return new Node(v);
+        }
+
+        // Se o valor for menor, vai para o lado esquerdo
+        if (v < atual.valor) {
+            atual.esquerda = inserirRec(atual.esquerda, v);
+        }
+        // Se for maior, vai para o lado direito
+        else if (v > atual.valor) {
+            atual.direita = inserirRec(atual.direita, v);
+        }
+        // Se igual, simplesmente nao insere (BST nao permite repetidos)
+        return atual;
+    }
+
+    public void remover(int v) {
+        raiz = removerRec(raiz, v);
+    }
+
+    private Node removerRec(Node atual, int v) {
+
+        // Se o no atual for nulo, o valor nao existe na arvore
+        if (atual == null) {
+            return null;
+        }
+
+        // Procura o valor pela esquerda
+        if (v < atual.valor) {
+            atual.esquerda = removerRec(atual.esquerda, v);
+        }
+        // Procura o valor pela direita
+        else if (v > atual.valor) {
+            atual.direita = removerRec(atual.direita, v);
+        }
+        else {
+            // Achou o valor. Agora existem 3 casos para remover.
+
+            // --------- Caso 1: No folha (sem filhos)
+            if (atual.esquerda == null && atual.direita == null) {
+                return null; // simplesmente apagamos o no
+            }
+
+            // --------- Caso 2: Apenas um filho
+            else if (atual.esquerda == null) {
+                return atual.direita; // substitui pelo filho da direita
+            }
+            else if (atual.direita == null) {
+                return atual.esquerda; // substitui pelo filho da esquerda
+            }
+
+            // --------- Caso 3: Dois filhos
+            // Precisamos pegar o menor valor da subarvore direita (sucessor)
+            Node sucessor = menorValor(atual.direita);
+
+            // Copia o valor do sucessor para o no atual
+            atual.valor = sucessor.valor;
+
+            // Agora removemos o sucessor da subarvore direita
+            atual.direita = removerRec(atual.direita, sucessor.valor);
+        }
+
+        return atual; // retorna o ponteiro atualizado
+    }
+
+    // Retorna o no com o menor valor (vai sempre para a esquerda)
+    private Node menorValor(Node atual) {
+        while (atual.esquerda != null) {
+            atual = atual.esquerda;
+        }
+        return atual;
+    }
+
+    // Impressao simples (in-order)
+    public void imprimir() {
+        imprimirRec(raiz);
+        System.out.println();
+    }
+
+    private void imprimirRec(Node atual) {
+        if (atual != null) {
+            imprimirRec(atual.esquerda);
+            System.out.print(atual.valor + " ");
+            imprimirRec(atual.direita);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        BST arvore = new BST();
+
+        // Inserindo valores
+        arvore.inserir(50);
+        arvore.inserir(30);
+        arvore.inserir(20);
+        arvore.inserir(40);
+        arvore.inserir(70);
+        arvore.inserir(60);
+        arvore.inserir(80);
+
+        System.out.println("Arvore depois das insercoes:");
+        arvore.imprimir();
+
+        // Removendo um valor sem filho
+        arvore.remover(20);
+
+        // Removendo um valor com um filho
+        arvore.remover(30);
+
+        // Removendo um valor com dois filhos
+        arvore.remover(50);
+
+        System.out.println("Arvore depois das remocoes:");
+        arvore.imprimir();
+    }
+}
